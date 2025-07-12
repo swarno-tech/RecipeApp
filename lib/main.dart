@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'main_menu_screen.dart';
+import 'package:reciepe_app2/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MainMenuScreen(),
+      home: const HomePage(),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:reciepe_app2/show_food.dart';
 import 'package:reciepe_app2/utils/colors.dart';
+import 'package:reciepe_app2/view_all_page.dart';
 import 'package:reciepe_app2/widgets/banner.dart';
 
 class MainMenuScreen extends StatefulWidget {
@@ -12,45 +14,11 @@ class MainMenuScreen extends StatefulWidget {
 }
 
 class _MainMenuScreenState extends State<MainMenuScreen> {
-  int selected = 0;
   String selectedCategory = "All";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconSize: 28,
-        currentIndex: selected,
-        selectedItemColor: kprimaryColor,
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
-        onTap: (value) {
-          selected = value;
-          setState(() {});
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(selected == 0 ? Iconsax.home5 : Iconsax.home1),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(selected == 1 ? Iconsax.heart5 : Iconsax.heart_add4),
-            label: "Favourite",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(selected == 2 ? Iconsax.calendar5 : Iconsax.calendar),
-            label: "Meal Plan",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(selected == 3 ? Iconsax.setting_21 : Iconsax.setting1),
-            label: "Setting",
-          ),
-        ],
-      ),
+      backgroundColor: kbackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -68,14 +36,20 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
-                      onPressed: () {},
-                      icon: Icon(Iconsax.notification),
-                      iconSize: 28,
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: Icon(Iconsax.notification),
+                        iconSize: 28,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 TextField(
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.search),
@@ -92,10 +66,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 MyBanner(),
                 Padding(
-                  padding: EdgeInsetsGeometry.symmetric(vertical: 20),
+                  padding: EdgeInsetsGeometry.only(top: 10),
                   child: Text(
                     "Categories",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -108,7 +82,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     });
                   },
                 ),
-                SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -119,17 +92,39 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         fontSize: 18,
                       ),
                     ),
-                    Text(
-                      "View all",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.green,
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ViewAllPage();
+                            },
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "View all",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.green,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                FoodsShowDown(selectedCategory: selectedCategory),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ShowFood();
+                        },
+                      ),
+                    );
+                  },
+                  child: FoodsShowDown(selectedCategory: selectedCategory),
+                ),
               ],
             ),
           ),
@@ -158,6 +153,12 @@ class _FoodsShowDownState extends State<FoodsShowDown> {
                 .where("category", isEqualTo: widget.selectedCategory)
                 .snapshots(),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData) {
+          return Text("No data found");
+        }
         return SizedBox(
           width: double.infinity,
           height: 400,
@@ -188,10 +189,8 @@ class _FoodsShowDownState extends State<FoodsShowDown> {
                           top: 5,
                           right: 5,
                           child: CircleAvatar(
-                            backgroundColor:
-                                snapshot.data!.docs[index].data()['favourite']
-                                ? Colors.red
-                                : Colors.white,
+                            backgroundColor: Colors.white,
+
                             child: GestureDetector(
                               onTap: () async {
                                 final docRef =
@@ -199,9 +198,18 @@ class _FoodsShowDownState extends State<FoodsShowDown> {
                                 final curr = snapshot.data!.docs[index]
                                     .data()['favourite'];
                                 await docRef.update({'favourite': !curr});
-                                setState(() {});
                               },
-                              child: Icon(Iconsax.heart),
+                              child: Icon(
+                                snapshot.data!.docs[index].data()['favourite']
+                                    ? Iconsax.heart5
+                                    : Iconsax.heart,
+                                color:
+                                    snapshot.data!.docs[index]
+                                        .data()['favourite']
+                                    ? Colors.red
+                                    : Colors.black,
+                                size: 30,
+                              ),
                             ),
                           ),
                         ),
@@ -256,7 +264,13 @@ class _CategoriesShowdownState extends State<CategoriesShowdown> {
           .doc("FflqeujL6EW1BhlkTupz")
           .snapshots(),
       builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Text("No data found");
+        }
         List<dynamic> categories = snapshot.data!.get("name");
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
         return SizedBox(
           width: double.infinity,
           height: 50,
