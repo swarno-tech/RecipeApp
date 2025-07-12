@@ -113,18 +113,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     ),
                   ],
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return ShowFood();
-                        },
-                      ),
-                    );
-                  },
-                  child: FoodsShowDown(selectedCategory: selectedCategory),
-                ),
+                FoodsShowDown(selectedCategory: selectedCategory),
               ],
             ),
           ),
@@ -178,10 +167,24 @@ class _FoodsShowDownState extends State<FoodsShowDown> {
                           width: 240,
                           child: ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(20),
-                            child: Image.network(
-                              snapshot.data!.docs[index].data()['image']
-                                  as String,
-                              fit: BoxFit.cover,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return ShowFood(
+                                        name: snapshot.data!.docs[index]
+                                            .data()['name'],
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Image.network(
+                                snapshot.data!.docs[index].data()['image']
+                                    as String,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),

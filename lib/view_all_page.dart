@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:reciepe_app2/Show_food.dart';
 import 'package:reciepe_app2/utils/colors.dart';
 
 class ViewAllPage extends StatefulWidget {
@@ -51,10 +52,24 @@ class _ViewAllPageState extends State<ViewAllPage> {
                           width: 240,
                           child: ClipRRect(
                             borderRadius: BorderRadiusGeometry.circular(20),
-                            child: Image.network(
-                              asyncSnapshot.data!.docs[index].data()['image']
-                                  as String,
-                              fit: BoxFit.cover,
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return ShowFood(
+                                        name: asyncSnapshot.data!.docs[index]
+                                            .data()['name'],
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Image.network(
+                                asyncSnapshot.data!.docs[index].data()['image']
+                                    as String,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ),
